@@ -19,11 +19,11 @@ This implementaion uses a single deck, but this can be changed in the future.
 8. After a hand, the player can choose to leave the game.
 9. Doubling down, splitting, and insurance are not implemented at this time.
 
-###Credits
+### Credits
 Developed by Nicholas A. Wright
 
-###License
+### License
 This project is released under the MIT License.   Refer to LICENSE.md for more information.
 
-###Feedback
+### Feedback
 As I am still learning Lua, I am very open to constructive feedback.    Feedback can be left [here](https://github.com/nickwrightdev/blackjack-lua/issues/new).
