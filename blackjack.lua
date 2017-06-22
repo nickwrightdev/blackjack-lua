@@ -129,14 +129,14 @@ function Game:initGame ()
 	self.player = Player:new()
 	self.deck = Deck:new()
 	
-	self:requestAddFunds ()
+	self:addToBalance()
 end
 
-function Game:requestAddFunds ()
+function Game:addToBalance ()
 	
 	repeat 
 		print ()
-		print("How much money honey are you bringing to the table?")
+		print("How much money are you adding to your balance?")
 		money = io.read()
 	until tonumber(money) ~= nil and tonumber(money) > 0
 	
@@ -169,7 +169,7 @@ function Game:deal ()
 	
 	self.deck:create()
 	self.deck:shuffle()
-	self.deck:print()
+	--self.deck:print()
 	
 	-- deal cards
 	
@@ -267,8 +267,21 @@ end
 function Game:endGame ()
 	
 	print()
-	print("Thanks for playing! Play again?")
+	print("Thanks for playing!  Choose your next action:")
+	print()
+	print("  1 - Play Again")
+	print("  2 - Add Money")
+	print("  3 - Quit")
 	
+	userInput = io.read()
+	
+	if userInput == '1' then
+		self:placeBet()
+	elseif userInput == '2' then
+		self:addToBalance()
+	else
+		os.exit(0)
+	end		
 end
 
 -- ---------- MAIN ----------
