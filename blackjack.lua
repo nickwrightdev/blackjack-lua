@@ -65,11 +65,214 @@ function Deck:print ()
 	end
 end
 
--- ---------- MAIN -----------
+-- ---------- PLAYER ----------
 
-math.randomseed(os.time())
+Player = {balance = 0, placedBet = 0}
+Player.__index = Player
 
-deck = Deck:new()
-deck:create()
-deck:shuffle()
-deck:print()
+function Player:new ()
+	local p = {}
+	setmetatable(p, Player)
+	
+	p.balance = 0
+	p.placedBet = 0
+	
+	return p
+end
+
+function Player:creditBalance (amount) 
+	self.balance = self.balance + amount;
+end
+
+function Player:deductBalance (amount)
+	self.balance = ((self.balance - amount) >= 0) and self.balance - amount or 0;
+end
+
+function Player:canBet (amount)
+	return amount <= self.balance
+end
+
+function Player:placeBet (amount) 
+	
+	if self:canBet(amount) then
+		self.placedBet = amount
+		self:deductBalance(amount)
+		return true
+	end
+	
+	return false
+end
+
+function Player:clearBet ()
+	self.placedBet = 0
+end
+
+-- ---------- GAME -----------
+
+Game = {player = {}, deck = {}}
+Game.__index = Game;
+
+function Game:new() 
+	local g = {}
+	setmetatable(g, Game)
+	
+	g.player = {}
+	g.deck = {}
+	
+	return g
+end
+
+function Game:initGame () 
+	
+	math.randomseed(os.time())
+	
+	self.player = Player:new()
+	self.deck = Deck:new()
+	
+	self:requestAddFunds ()
+end
+
+function Game:requestAddFunds ()
+	
+	repeat 
+		print ()
+		print("How much money honey are you bringing to the table?")
+		money = io.read()
+	until tonumber(money) ~= nil and tonumber(money) > 0
+	
+	self.player:creditBalance(tonumber(money))
+	self:placeBet()
+end
+
+function Game:placeBet ()
+	
+	self.player:clearBet()
+	
+	repeat
+		print ()
+		placeBetStr = "You have $" .. self.player.balance .. ".  How much will you bet?"
+		print(placeBetStr)
+		betInput = io.read()
+		bet = tonumber(betInput)
+	until bet ~= nil and bet > 0 and self.player:canBet(bet)
+	
+	if self.player:placeBet (bet) then
+		self:deal()
+	end
+end
+
+function Game:deal ()
+	
+	betStr = "Let's play a round of Blackjack! You've bet $" .. self.player.placedBet
+	print ()
+	print (betStr)
+	
+	self.deck:create()
+	self.deck:shuffle()
+	self.deck:print()
+	
+	-- deal cards
+	
+	self:evaluateDeal ()
+	
+end
+
+function Game:evaluateDeal ()
+	
+	print()
+	print("Player has ");
+	print("Dealer shows a ");
+	
+	-- resolve game if player or dealer has blackjack
+	-- self:resolveGame ()
+	
+	self:playerAction ()
+	
+end
+
+function Game:playerAction ()
+	
+	-- if bust
+	--self:dealerAction()
+	
+	-- if blackjack
+	--self:dealerAction()
+	
+	print()
+	print("Hit or Stand?")
+	
+	-- if stand
+	self:playerStand ()
+	
+	-- if hit
+	--self:playerHit()
+end
+
+function Game:playerStand ()
+	
+	print ()
+	print ("Player stands");
+	
+	self:dealerAction() 
+end
+
+function Game:playerHit ()
+	
+	-- deal card to player
+	
+	print("Player takes a card.")
+	
+	self:playerAction ()
+		
+end
+
+function Game:dealerAction ()
+	
+	-- if dealer blackjack
+	--self:resolveGame ()
+	
+	-- if bust
+	--self:resolveGame()
+	
+	-- if dealer stands
+	--self:resovleGame()
+	
+	-- if dealer hits
+	--self:dealerHit()
+	
+	self:resolveGame ()
+	
+end
+
+function Game:dealerHit () 
+	
+	print ("Dealer takes a card.")
+	
+	-- if dealer blackjack
+	--self:resolveGame ()
+	
+	-- if bust
+	--self:resolveGame()
+	
+	-- if dealerStands
+	--self:resolveGame()
+	
+end
+
+function Game:resolveGame ()
+	
+	self:endGame()
+end
+
+function Game:endGame ()
+	
+	print()
+	print("Thanks for playing! Play again?")
+	
+end
+
+-- ---------- MAIN ----------
+
+game = Game:new()
+game:initGame()
+
