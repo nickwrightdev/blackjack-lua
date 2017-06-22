@@ -81,7 +81,6 @@ end
 function Deck:dealCard ()
 	
 	local c = table.remove(self.cards, 1);
-	print("dealing card : ", c:print())
 	return c
 end
 
@@ -176,6 +175,15 @@ end
 
 function Hand:hasBust()
 	return self:score() > 21
+end
+
+function Hand:print()
+	handStr = '';
+	for _,c in ipairs(self.cards) do
+		handStr = handStr .. c:print() .. '  '
+	end
+	
+	return handStr
 end
 
 -- ---------- GAME -----------
@@ -310,35 +318,51 @@ end
 
 function Game:playerStand ()
 	
-	print ()
-	print ("Player stands.");
+	playerStandsOn = "Player stands on " .. self.playerHand:score() .. '.'
 	
+	print ()
+	print (playerStandsOn);
+	
+	wait(1)
 	self:dealerAction() 
 end
 
 function Game:playerHit ()
 	
-	print()
-	print("Player takes a card.")
+	card = self.deck:dealCard()
+	self.playerHand:addCard(card)
 	
-	self.playerHand:addCard(self.deck:dealCard())
+	playerHits = "Player hits for a " .. card:print() .. " and a score of " .. self.playerHand:score() .. "."
+	
+	print()
+	print(playerHits)
+	
+	wait(1)
 	self:playerAction ()
 		
 end
 
 function Game:dealerAction ()
 	
+	dealerHas = "Dealer has " .. self.dealerHand:print() .. " for a score of " .. self.dealerHand:score() .. "."
+	
+	print()
+	print(dealerHas)
+	
 	-- dealer stands on player bust
 	if self.playerHand:hasBust() then
 		self:resolveGame()
+		return
 	end
 	
 	if self.dealerHand:hasBlackjack() then
 		self:resolveGame()
+		return
 	end
 	
 	if self.dealerHand:hasBust() then
 		self:resolveGame()
+		return
 	end
 	
 	dealerScore = self.dealerHand:score()
@@ -352,39 +376,97 @@ end
 
 function Game:dealerStand ()
 	
+	dealerStandsOn = "Dealer stands on " .. self.dealerHand:score() .. '.'
+	
 	print()
-	print ("Dealer stands.")
+	print (dealerStandsOn)
 	
+	wait(1)
 	self:resolveGame ()
-	
 end
 
 function Game:dealerHit () 
 	
-	print ()
-	print ("Dealer takes a card.")
+	card = self.deck:dealCard()
+	self.dealerHand:addCard(card)
 	
-	self.dealerHand:addCard(self.deck:dealCard())
+	dealerHits = "Dealer hits for a " .. card:print() .. " and a score of " .. self.dealerHand:score() .. "."
+	
+	print ()
+	print (dealerHits)
+	
+	wait(1)
 	self:dealerAction()
 end
 
 function Game:resolveGame ()
 	
+	playerScore = self.playerHand:score()
+	dealerScore = self.dealerHand:score()
+	
 	print ()
-	print ("Player has ", self.playerHand:score())
-	print ("Dealer has ", self.dealerHand:score())
+	print ("Player Hand: ", self.playerHand:print())
+	print ("Player has ", playerScore)
+	print ()
+	print ("Dealer Hand: ", self.dealerHand:print())
+	print ("Dealer has ", dealerScore)
+	
+	push = false
+	win = false
+	
+	if self.dealerHand:hasBust() then
+		win = true;
+	elseif (not self.playerHand:hasBust()) and (playerScore > dealerScore) then
+		win = true;
+	elseif playerScore == dealerScore then
+		push = true;
+	end
+	
+	betAmount = self.player.placedBet
+	winAmount = 0
+	gameMessage = ''
+	
+	if (win) then
+		if self.playerHand:hasBlackjack() then
+			-- Blackjack pays 3:2
+			winAmount = 3 * betAmount / 2
+			gameMessage = "You win on a Blackjack!  You win $" .. winAmount .. "."
+		else
+			-- All other winning hands pay 2:1
+			winAmount = betAmount * 2
+			gameMessage = "You win!  You win $" .. winAmount .. "."
+		end
+	elseif (push) then
+		-- return bet to player on push
+		winAmount = betAmount;
+		gameMessage = "You pushed with the Dealer!"
+	else
+		gameMessage = "You Lose!"
+	end
+	
+	-- pay the winner
+	if winAmount > 0 then
+		self.player:creditBalance(winAmount)
+	end
+	
+	print ()
+	print (gameMessage)
+	print ("Game Over!")
+	
+	wait(1)
 	
 	self:endGame()
 end
 
 function Game:endGame ()
 	
+	outputStr = "Thanks for playing!"
 	print()
 	print("Thanks for playing!  Choose your next action:")
 	print()
 	print("  1 - Play Again")
 	print("  2 - Add Money")
-	print("  3 - Quit")
+	print("  3 - Cash Out")
 	
 	userInput = io.read()
 	
@@ -398,6 +480,12 @@ function Game:endGame ()
 end
 
 -- ---------- MAIN ----------
+
+-- helper function to add some delay between states
+function wait(seconds)
+	local start = os.time()
+	repeat until os.time() > start + seconds
+end
 
 game = Game:new()
 game:initGame()
