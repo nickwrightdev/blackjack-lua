@@ -2,6 +2,8 @@
 --		   nick@nickwrightdev.com
 --
 -- This is a simple blackjack game played in the console
+-- as an exercise in learning Lua.    
+--
 
 suits = {"Clubs", "Diamonds", "Hearts", "Spades"}
 faces = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"}
@@ -23,6 +25,17 @@ end
 
 function Card:print ()
 	return self.face .. " of " .. self.suit
+end
+
+function Card:score (busted)
+	
+	if (self.face == "K") or (self.face == "Q") or (self.face == "J") then
+		return 10;
+	elseif self.face == "A" then
+		return (busted) and 1 or 11
+	end
+	
+	return tonumber(self.face)
 end
 
 -- ---------- DECK ----------
@@ -63,6 +76,13 @@ function Deck:print ()
 	for i = 1, #self.cards, 1 do
 		print (self.cards[i]:print())
 	end
+end
+
+function Deck:dealCard ()
+	
+	local c = table.remove(self.cards, 1);
+	print("dealing card : ", c:print())
+	return c
 end
 
 -- ---------- PLAYER ----------
@@ -107,9 +127,50 @@ function Player:clearBet ()
 	self.placedBet = 0
 end
 
+-- ---------- HAND ----------
+
+Hand = {cards={}}
+Hand.__index = Hand
+
+function Hand:new() 
+	local h = {}
+	setmetatable(h, Hand)
+	
+	h.cards = {}
+	
+	return h
+end
+
+function Hand:clear() 
+	self.cards = {}
+end
+
+function Hand:addCard(card)
+	if card ~= nil then
+		self.cards[#self.cards + 1] = card
+	end
+end
+
+function Hand:score() 
+	
+	local busted = false
+	local score = 0
+	
+	for _, c in ipairs(self.cards) do
+		score = score + c:score(busted)
+		busted = score > 21
+		
+		if busted then
+			score = score - c:score(false) + c:score(true)
+		end
+	end
+	
+	return score
+end
+
 -- ---------- GAME -----------
 
-Game = {player = {}, deck = {}}
+Game = {player = {}, deck = {}, playerHand = {}, dealerHand = {}}
 Game.__index = Game;
 
 function Game:new() 
@@ -118,6 +179,8 @@ function Game:new()
 	
 	g.player = {}
 	g.deck = {}
+	g.playerHand = {}
+	g.dealerHand = {}
 	
 	return g
 end
@@ -128,6 +191,8 @@ function Game:initGame ()
 	
 	self.player = Player:new()
 	self.deck = Deck:new()
+	self.playerHand = Hand:new()
+	self.dealerHand = Hand:new()
 	
 	self:addToBalance()
 end
@@ -167,11 +232,21 @@ function Game:deal ()
 	print ()
 	print (betStr)
 	
+	-- new deck and shuffle
 	self.deck:create()
 	self.deck:shuffle()
 	--self.deck:print()
 	
+	-- clear hands
+	self.playerHand:clear()
+	self.dealerHand:clear()
+	
 	-- deal cards
+	
+	self.playerHand:addCard(self.deck:dealCard())
+	self.dealerHand:addCard(self.deck:dealCard())
+	self.playerHand:addCard(self.deck:dealCard())
+	self.dealerHand:addCard(self.deck:dealCard())
 	
 	self:evaluateDeal ()
 	
@@ -180,8 +255,8 @@ end
 function Game:evaluateDeal ()
 	
 	print()
-	print("Player has ");
-	print("Dealer shows a ");
+	print("Player has ", self.playerHand:score(), self.playerHand.cards[1]:print(), self.playerHand.cards[2]:print());
+	print("Dealer shows a ", self.dealerHand.cards[1]:print());
 	
 	-- resolve game if player or dealer has blackjack
 	-- self:resolveGame ()
@@ -248,14 +323,7 @@ function Game:dealerHit ()
 	
 	print ("Dealer takes a card.")
 	
-	-- if dealer blackjack
-	--self:resolveGame ()
-	
-	-- if bust
-	--self:resolveGame()
-	
-	-- if dealerStands
-	--self:resolveGame()
+	self:dealerAction()
 	
 end
 
