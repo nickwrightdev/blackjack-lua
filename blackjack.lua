@@ -158,14 +158,24 @@ function Hand:score()
 	
 	for _, c in ipairs(self.cards) do
 		score = score + c:score(busted)
-		busted = score > 21
 		
-		if busted then
-			score = score - c:score(false) + c:score(true)
+		if not busted then 			
+			if score > 21 and c.face == "A" then
+				busted = true
+				score = score - c:score(false) + c:score(true)
+			end
 		end
 	end
 	
 	return score
+end
+
+function Hand:hasBlackjack() 
+	return self:score() == 21
+end
+
+function Hand:hasBust()
+	return self:score() > 21
 end
 
 -- ---------- GAME -----------
@@ -242,7 +252,6 @@ function Game:deal ()
 	self.dealerHand:clear()
 	
 	-- deal cards
-	
 	self.playerHand:addCard(self.deck:dealCard())
 	self.dealerHand:addCard(self.deck:dealCard())
 	self.playerHand:addCard(self.deck:dealCard())
@@ -258,62 +267,93 @@ function Game:evaluateDeal ()
 	print("Player has ", self.playerHand:score(), self.playerHand.cards[1]:print(), self.playerHand.cards[2]:print());
 	print("Dealer shows a ", self.dealerHand.cards[1]:print());
 	
-	-- resolve game if player or dealer has blackjack
-	-- self:resolveGame ()
+	-- TODO: this would be a logical place to offer insurance if needed
 	
-	self:playerAction ()
-	
+	-- game ends if either player has a blackjack
+	if self.playerHand:hasBlackjack() or self.dealerHand:hasBlackjack() then
+		self:resolveGame()
+	else 
+		self:playerAction ()
+	end	
 end
 
 function Game:playerAction ()
 	
-	-- if bust
-	--self:dealerAction()
+	if self.playerHand:hasBust() then
+		self:dealerAction()
+		return;
+	end
 	
-	-- if blackjack
-	--self:dealerAction()
+	if self.playerHand:hasBlackjack() then
+		self:dealerAction()
+		return;
+	end
+	
+	-- TODO: this would be a logical place to offer a split
 	
 	print()
 	print("Hit or Stand?")
+	print("  H - Hit")
+	print("  S - Stand")
 	
-	-- if stand
-	self:playerStand ()
+	repeat
+		userInput = io.read()
+		userInput = string.upper(userInput)
+	until (userInput == "H") or (userInput == "S")
 	
-	-- if hit
-	--self:playerHit()
+	if userInput == "H" then
+		self:playerHit()
+	else
+		self:playerStand()
+	end
 end
 
 function Game:playerStand ()
 	
 	print ()
-	print ("Player stands");
+	print ("Player stands.");
 	
 	self:dealerAction() 
 end
 
 function Game:playerHit ()
 	
-	-- deal card to player
-	
+	print()
 	print("Player takes a card.")
 	
+	self.playerHand:addCard(self.deck:dealCard())
 	self:playerAction ()
 		
 end
 
 function Game:dealerAction ()
 	
-	-- if dealer blackjack
-	--self:resolveGame ()
+	-- dealer stands on player bust
+	if self.playerHand:hasBust() then
+		self:resolveGame()
+	end
 	
-	-- if bust
-	--self:resolveGame()
+	if self.dealerHand:hasBlackjack() then
+		self:resolveGame()
+	end
 	
-	-- if dealer stands
-	--self:resovleGame()
+	if self.dealerHand:hasBust() then
+		self:resolveGame()
+	end
 	
-	-- if dealer hits
-	--self:dealerHit()
+	dealerScore = self.dealerHand:score()
+	
+	if dealerScore > 16 then
+		self:dealerStand ()
+	else
+		self:dealerHit ()
+	end
+end
+
+function Game:dealerStand ()
+	
+	print()
+	print ("Dealer stands.")
 	
 	self:resolveGame ()
 	
@@ -321,13 +361,18 @@ end
 
 function Game:dealerHit () 
 	
+	print ()
 	print ("Dealer takes a card.")
 	
+	self.dealerHand:addCard(self.deck:dealCard())
 	self:dealerAction()
-	
 end
 
 function Game:resolveGame ()
+	
+	print ()
+	print ("Player has ", self.playerHand:score())
+	print ("Dealer has ", self.dealerHand:score())
 	
 	self:endGame()
 end
