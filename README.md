@@ -13,7 +13,7 @@ This implementaion uses a single deck, but this can be changed in the future.
 2. The player places a bet.
 3. A new deck is created and shuffled before every deal.
 4. The dealer deals 2 cards face up to the player, and 2 cards to herself - 1 face up and the other face down.
-5. If the player has a 21, the game is over.   Otherwise, the player can either stand (end their turn) or hit as many times as desired until they stand or lose on a bust (score higher than 21).
+5. If the player and/or dealer has a 21, the game is over.   Otherwise, the player can either stand (end their turn) or hit as many times as desired until they stand or lose on a bust (score higher than 21).
 6. After the player's turn, the dealer exposes her other card.  The dealer will hit on all scores below 17 and stand on all scores 17 and higher. 
 7. If the player wins on any non-blackjack hand, they are paid 2 to 1.    Blackjack pays 3 to 2.
 8. After a hand, the player can choose to leave the game.

@@ -23,8 +23,12 @@ function Card:new (suit, face)
 	return c
 end
 
+function Card:tostring() 
+    return self.face .. " of " .. self.suit
+end
+
 function Card:print ()
-	return self.face .. " of " .. self.suit
+    print (self:tostring())
 end
 
 function Card:score (busted)
@@ -74,7 +78,7 @@ end
 function Deck:print ()
 	
 	for i = 1, #self.cards, 1 do
-		print (self.cards[i]:print())
+		print (self.cards[i]:tostring())
 	end
 end
 
@@ -177,13 +181,17 @@ function Hand:hasBust()
 	return self:score() > 21
 end
 
-function Hand:print()
+function Hand:tostring()
 	handStr = '';
 	for _,c in ipairs(self.cards) do
-		handStr = handStr .. c:print() .. '  '
+		handStr = handStr .. c:tostring() .. '  '
 	end
 	
 	return handStr
+end
+
+function Hand:print()
+    print(self:tostring())
 end
 
 -- ---------- GAME -----------
@@ -272,8 +280,8 @@ end
 function Game:evaluateDeal ()
 	
 	print()
-	print("Player has ", self.playerHand:score(), self.playerHand.cards[1]:print(), self.playerHand.cards[2]:print());
-	print("Dealer shows a ", self.dealerHand.cards[1]:print());
+	print("Player has ", self.playerHand:score(), self.playerHand.cards[1]:tostring(), self.playerHand.cards[2]:tostring());
+	print("Dealer shows a ", self.dealerHand.cards[1]:tostring());
 	
 	-- TODO: this would be a logical place to offer insurance if needed
 	
@@ -323,7 +331,6 @@ function Game:playerStand ()
 	print ()
 	print (playerStandsOn);
 	
-	wait(1)
 	self:dealerAction() 
 end
 
@@ -332,19 +339,18 @@ function Game:playerHit ()
 	card = self.deck:dealCard()
 	self.playerHand:addCard(card)
 	
-	playerHits = "Player hits for a " .. card:print() .. " and a score of " .. self.playerHand:score() .. "."
+	playerHits = "Player hits for a " .. card:tostring() .. " and a score of " .. self.playerHand:score() .. "."
 	
 	print()
 	print(playerHits)
 	
-	wait(1)
 	self:playerAction ()
 		
 end
 
 function Game:dealerAction ()
 	
-	dealerHas = "Dealer has " .. self.dealerHand:print() .. " for a score of " .. self.dealerHand:score() .. "."
+	dealerHas = "Dealer has " .. self.dealerHand:tostring() .. " for a score of " .. self.dealerHand:score() .. "."
 	
 	print()
 	print(dealerHas)
@@ -381,7 +387,6 @@ function Game:dealerStand ()
 	print()
 	print (dealerStandsOn)
 	
-	wait(1)
 	self:resolveGame ()
 end
 
@@ -390,12 +395,11 @@ function Game:dealerHit ()
 	card = self.deck:dealCard()
 	self.dealerHand:addCard(card)
 	
-	dealerHits = "Dealer hits for a " .. card:print() .. " and a score of " .. self.dealerHand:score() .. "."
+	dealerHits = "Dealer hits for a " .. card:tostring() .. " and a score of " .. self.dealerHand:score() .. "."
 	
 	print ()
 	print (dealerHits)
 	
-	wait(1)
 	self:dealerAction()
 end
 
@@ -405,10 +409,10 @@ function Game:resolveGame ()
 	dealerScore = self.dealerHand:score()
 	
 	print ()
-	print ("Player Hand: ", self.playerHand:print())
+	print ("Player Hand: ", self.playerHand:tostring())
 	print ("Player has ", playerScore)
 	print ()
-	print ("Dealer Hand: ", self.dealerHand:print())
+	print ("Dealer Hand: ", self.dealerHand:tostring())
 	print ("Dealer has ", dealerScore)
 	
 	push = false
@@ -452,8 +456,6 @@ function Game:resolveGame ()
 	print ()
 	print (gameMessage)
 	print ("Game Over!")
-	
-	wait(1)
 	
 	self:endGame()
 end
