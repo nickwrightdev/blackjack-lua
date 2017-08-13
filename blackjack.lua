@@ -5,15 +5,40 @@
 -- as an exercise in learning Lua.    
 --
 
-suits = {"Clubs", "Diamonds", "Hearts", "Spades"}
-faces = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"}
+suits = 
+{
+    "Clubs", 
+    "Diamonds", 
+    "Hearts", 
+    "Spades"
+}
+faces = 
+{
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10", 
+    "J", 
+    "Q", 
+    "K", 
+    "A",
+}
 
 -- ---------- CARD ----------
 
-Card = {suit = "Clubs", face = "2"}
+Card = 
+{
+    suit = "Clubs", 
+    face = "2"
+}
 Card.__index = Card
 
-function Card:new (suit, face) 
+function Card:new(suit, face) 
     local c = {}
     setmetatable(c, Card)
     
@@ -23,15 +48,15 @@ function Card:new (suit, face)
     return c
 end
 
-function Card:tostring() 
+function Card:ToString() 
     return self.face .. " of " .. self.suit
 end
 
-function Card:print ()
-    print (self:tostring())
+function Card:Print()
+    print(self:tostring())
 end
 
-function Card:score (busted)
+function Card:Score(busted)
 	
     if (self.face == "K") or (self.face == "Q") or (self.face == "J") then
         return 10;
@@ -44,10 +69,13 @@ end
 
 -- ---------- DECK ----------
 
-Deck = {cards = {}}
+Deck = 
+{
+    cards = {},
+}
 Deck.__index = Deck
 
-function Deck:new ()
+function Deck:new()
     local d = {}
     setmetatable(d, Deck)
     
@@ -55,7 +83,7 @@ function Deck:new ()
     return d
 end
 
-function Deck:create () 
+function Deck:Create() 
 	
     self.cards = {}
     
@@ -67,7 +95,7 @@ function Deck:create ()
     end
 end
 
-function Deck:shuffle () 
+function Deck:Shuffle() 
 	
     for i = 1, #self.cards, 1 do
         local j = math.random(1, #self.cards)
@@ -75,29 +103,33 @@ function Deck:shuffle ()
     end
 end
 
-function Deck:print ()
+function Deck:Print()
 	
     for i = 1, #self.cards, 1 do
-        print (self.cards[i]:tostring())
+        print(self.cards[i]:tostring())
     end
 end
 
-function Deck:dealCard ()
+function Deck:DealCard()
     
     local c = table.remove(self.cards, 1);
     return c
 end
 
-function Deck:peekCard ()
+function Deck:PeekCard()
     return self.cards[1]
 end
 
 -- ---------- PLAYER ----------
 
-Player = {balance = 0, placedBet = 0}
+Player = 
+{
+    balance = 0, 
+    placedBet = 0,
+}
 Player.__index = Player
 
-function Player:new ()
+function Player:new()
     local p = {}
     setmetatable(p, Player)
 	
@@ -107,36 +139,39 @@ function Player:new ()
     return p
 end
 
-function Player:creditBalance (amount) 
+function Player:CreditBalance(amount) 
     self.balance = self.balance + amount;
 end
 
-function Player:deductBalance (amount)
+function Player:DeductBalance(amount)
     self.balance = ((self.balance - amount) >= 0) and self.balance - amount or 0;
 end
 
-function Player:canBet (amount)
+function Player:CanBet(amount)
     return amount <= self.balance
 end
 
-function Player:placeBet (amount) 
+function Player:PlaceBet(amount) 
 	
-    if self:canBet(amount) then
+    if self:CanBet(amount) then
         self.placedBet = amount
-        self:deductBalance(amount)
+        self:DeductBalance(amount)
         return true
     end
     
     return false
 end
 
-function Player:clearBet ()
+function Player:ClearBet ()
     self.placedBet = 0
 end
 
 -- ---------- HAND ----------
 
-Hand = {cards={}}
+Hand = 
+{
+    cards={}
+}
 Hand.__index = Hand
 
 function Hand:new() 
@@ -148,28 +183,28 @@ function Hand:new()
     return h
 end
 
-function Hand:clear() 
+function Hand:Clear() 
     self.cards = {}
 end
 
-function Hand:addCard(card)
+function Hand:AddCard(card)
     if card ~= nil then
         self.cards[#self.cards + 1] = card 
     end
 end
 
-function Hand:score() 
+function Hand:Score() 
 	
     local busted = false
     local score = 0
 	
     for _, c in ipairs(self.cards) do
-        score = score + c:score(busted)
+        score = score + c:Score(busted)
 		
         if not busted then 			
             if score > 21 and c.face == "A" then
                 busted = true
-                score = score - c:score(false) + c:score(true)
+                score = score - c:Score(false) + c:Score(true)
             end
         end
     end
@@ -177,30 +212,36 @@ function Hand:score()
     return score
 end
 
-function Hand:hasBlackjack() 
-    return self:score() == 21
+function Hand:HasBlackjack() 
+    return self:Score() == 21
 end
 
-function Hand:hasBust()
-    return self:score() > 21
+function Hand:HasBust()
+    return self:Score() > 21
 end
 
-function Hand:tostring()
+function Hand:ToString()
     handStr = '';
     for _,c in ipairs(self.cards) do
-        handStr = handStr .. c:tostring() .. '  '
+        handStr = handStr .. c:ToString() .. '  '
     end
     
     return handStr
 end
 
-function Hand:print()
-    print(self:tostring())
+function Hand:Print()
+    print(self:ToString())
 end
 
 -- ---------- GAME -----------
 
-Game = {player = {}, deck = {}, playerHand = {}, dealerHand = {}}
+Game = 
+{
+    player = {}, 
+    deck = {}, 
+    playerHand = {}, 
+    dealerHand = {}
+}
 Game.__index = Game;
 
 function Game:new() 
@@ -215,7 +256,7 @@ function Game:new()
     return g
 end
 
-function Game:initGame () 
+function Game:InitGame() 
 	
     math.randomseed(os.time())
 	
@@ -224,10 +265,10 @@ function Game:initGame ()
     self.playerHand = Hand:new()
     self.dealerHand = Hand:new()
 	
-    self:addToBalance()
+    self:AddToBalance()
 end
 
-function Game:addToBalance ()
+function Game:AddToBalance()
 	
     repeat 
         print ()
@@ -235,77 +276,77 @@ function Game:addToBalance ()
         money = io.read()
     until tonumber(money) ~= nil and tonumber(money) > 0
 	
-    self.player:creditBalance(tonumber(money))
-    self:placeBet()
+    self.player:CreditBalance(tonumber(money))
+    self:PlaceBet()
 end
 
-function Game:placeBet ()
+function Game:PlaceBet()
 	
-    self.player:clearBet()
+    self.player:ClearBet()
 	
     repeat
-        print ()
+        print()
         placeBetStr = "You have $" .. self.player.balance .. ".  How much will you bet?"
         print(placeBetStr)
         betInput = io.read()
         bet = tonumber(betInput)
-    until bet ~= nil and bet > 0 and self.player:canBet(bet)
+    until bet ~= nil and bet > 0 and self.player:CanBet(bet)
 	
-    if self.player:placeBet (bet) then
-        self:deal()
+    if self.player:PlaceBet(bet) then
+        self:Deal()
     end
 end
 
-function Game:deal ()
+function Game:Deal()
 	
     betStr = "Let's play a round of Blackjack! You've bet $" .. self.player.placedBet
-    print ()
-    print (betStr)
+    print()
+    print(betStr)
 	
     -- new deck and shuffle
-    self.deck:create()
-    self.deck:shuffle()
+    self.deck:Create()
+    self.deck:Shuffle()
     --self.deck:print()
 	
 	-- clear hands
-    self.playerHand:clear()
-    self.dealerHand:clear()
+    self.playerHand:Clear()
+    self.dealerHand:Clear()
 	
 	-- deal cards
-    self.playerHand:addCard(self.deck:dealCard())
-    self.dealerHand:addCard(self.deck:dealCard())
-    self.playerHand:addCard(self.deck:dealCard())
-    self.dealerHand:addCard(self.deck:dealCard())
+    self.playerHand:AddCard(self.deck:DealCard())
+    self.dealerHand:AddCard(self.deck:DealCard())
+    self.playerHand:AddCard(self.deck:DealCard())
+    self.dealerHand:AddCard(self.deck:DealCard())
 	
-    self:evaluateDeal ()
+    self:EvaluateDeal()
 	
 end
 
-function Game:evaluateDeal ()
+function Game:EvaluateDeal()
 	
     print()
-    print("Player has ", self.playerHand:score(), self.playerHand.cards[1]:tostring(), self.playerHand.cards[2]:tostring());
-    print("Dealer shows a ", self.dealerHand.cards[1]:tostring());
+    print("Player has ", self.playerHand:Score(), self.playerHand.cards[1]:ToString(), self.playerHand.cards[2]:ToString());
+    print("Dealer shows a ", self.dealerHand.cards[1]:ToString());
 	
 	-- TODO: this would be a logical place to offer insurance if needed
 	
 	-- game ends if either player has a blackjack
-    if self.playerHand:hasBlackjack() or self.dealerHand:hasBlackjack() then
-        self:resolveGame()
+    if self.playerHand:HasBlackjack() or self.dealerHand:HasBlackjack() then
+        self:ResolveGame()
     else 
-        self:playerAction ()
+        self:PlayerAction()
     end	
 end
 
-function Game:playerAction ()
+function Game:PlayerAction()
 	
-    if self.playerHand:hasBust() then
-        self:dealerAction()
+    if self.playerHand:HasBust() then
+        self:DealerAction()
         return;
     end
 	
-    if self.playerHand:hasBlackjack() then
-        self:dealerAction()
+    if self.playerHand:HasBlackjack() then
+        self:DealerAction()
         return;
     end
 	
@@ -322,28 +363,28 @@ function Game:playerAction ()
     until (userInput == "H") or (userInput == "S")
 	
     if userInput == "H" then
-        self:playerHit()
+        self:PlayerHit()
     else
-        self:playerStand()
+        self:PlayerStand()
     end
 end
 
-function Game:playerStand ()
+function Game:PlayerStand()
 	
-    playerStandsOn = "Player stands on " .. self.playerHand:score() .. '.'
+    playerStandsOn = "Player stands on " .. self.playerHand:Score() .. '.'
 	
-    print ()
-    print (playerStandsOn);
+    print()
+    print(playerStandsOn);
 	
-    self:dealerAction() 
+    self:DealerAction() 
 end
 
-function Game:playerHit ()
+function Game:PlayerHit()
 	
-    card = self.deck:dealCard()
-    self.playerHand:addCard(card)
+    card = self.deck:DealCard()
+    self.playerHand:AddCard(card)
 	
-    playerHits = "Player hits for a " .. card:tostring() .. " and a score of " .. self.playerHand:score() .. "."
+    playerHits = "Player hits for a " .. card:ToString() .. " and a score of " .. self.playerHand:Score() .. "."
 	
     print()
     print(playerHits)
@@ -352,79 +393,79 @@ function Game:playerHit ()
 		
 end
 
-function Game:dealerAction ()
+function Game:DealerAction()
 	
-    dealerHas = "Dealer has " .. self.dealerHand:tostring() .. " for a score of " .. self.dealerHand:score() .. "."
+    dealerHas = "Dealer has " .. self.dealerHand:ToString() .. " for a score of " .. self.dealerHand:Score() .. "."
 	
     print()
     print(dealerHas)
 	
     -- dealer stands on player bust
-    if self.playerHand:hasBust() then
-        self:resolveGame()
+    if self.playerHand:HasBust() then
+        self:ResolveGame()
         return
      end
 	
-    if self.dealerHand:hasBlackjack() then
-        self:resolveGame()
+    if self.dealerHand:HasBlackjack() then
+        self:ResolveGame()
         return
     end
 	
-    if self.dealerHand:hasBust() then
-        self:resolveGame()
+    if self.dealerHand:HasBust() then
+        self:ResolveGame()
         return
     end
 	
-    dealerScore = self.dealerHand:score()
+    dealerScore = self.dealerHand:Score()
 	
     if dealerScore > 16 then
-        self:dealerStand ()
+        self:DealerStand()
     else
-        self:dealerHit ()
+        self:DealerHit()
     end
 end
 
-function Game:dealerStand ()
+function Game:DealerStand ()
 	
-    dealerStandsOn = "Dealer stands on " .. self.dealerHand:score() .. '.'
+    dealerStandsOn = "Dealer stands on " .. self.dealerHand:Score() .. '.'
 	
     print()
-    print (dealerStandsOn)
+    print(dealerStandsOn)
 	
-    self:resolveGame ()
+    self:ResolveGame()
 end
 
-function Game:dealerHit () 
+function Game:DealerHit() 
 	
     card = self.deck:dealCard()
     self.dealerHand:addCard(card)
 	
-    dealerHits = "Dealer hits for a " .. card:tostring() .. " and a score of " .. self.dealerHand:score() .. "."
+    dealerHits = "Dealer hits for a " .. card:ToString() .. " and a score of " .. self.dealerHand:Score() .. "."
 	
-    print ()
-    print (dealerHits)
+    print()
+    print(dealerHits)
 	
-    self:dealerAction()
+    self:DealerAction()
 end
 
-function Game:resolveGame ()
+function Game:ResolveGame()
 	
-    playerScore = self.playerHand:score()
-    dealerScore = self.dealerHand:score()
+    playerScore = self.playerHand:Score()
+    dealerScore = self.dealerHand:Score()
 	
-    print ()
-    print ("Player Hand: ", self.playerHand:tostring())
-    print ("Player has ", playerScore)
-    print ()
-    print ("Dealer Hand: ", self.dealerHand:tostring())
-    print ("Dealer has ", dealerScore)
+    print()
+    print("Player Hand: ", self.playerHand:ToString())
+    print("Player has ", playerScore)
+    print()
+    print("Dealer Hand: ", self.dealerHand:ToString())
+    print("Dealer has ", dealerScore)
 	
     push = false
     win = false
 	
-    if self.dealerHand:hasBust() then
+    if self.dealerHand:HasBust() then
         win = true;
-    elseif (not self.playerHand:hasBust()) and (playerScore > dealerScore) then
+    elseif (not self.playerHand:HasBust()) and (playerScore > dealerScore) then
         win = true;
     elseif playerScore == dealerScore then
         push = true;
@@ -435,7 +476,7 @@ function Game:resolveGame ()
     gameMessage = ''
 	
     if (win) then
-        if self.playerHand:hasBlackjack() then
+        if self.playerHand:HasBlackjack() then
             -- Blackjack pays 3:2
             winAmount = 3 * betAmount / 2
             gameMessage = "You win on a Blackjack!  You win $" .. winAmount .. "."
@@ -454,17 +495,17 @@ function Game:resolveGame ()
 	
     -- pay the winner
     if winAmount > 0 then
-        self.player:creditBalance(winAmount)
+        self.player:CreditBalance(winAmount)
     end
 	
-    print ()
-    print (gameMessage)
-    print ("Game Over!")
+    print()
+    print(gameMessage)
+    print("Game Over!")
 	
-    self:endGame()
+    self:EndGame()
 end
 
-function Game:endGame ()
+function Game:EndGame()
 	
     outputStr = "Thanks for playing!"
     print()
@@ -477,12 +518,12 @@ function Game:endGame ()
     userInput = io.read()
 	
     if userInput == '1' then
-        self:placeBet()
+        self:PlaceBet()
     elseif userInput == '2' then
-        self:addToBalance()
+        self:AddToBalance()
     else
         os.exit(0)
-    end		
+    end	
 end
 
 -- ---------- MAIN ----------
@@ -493,10 +534,9 @@ function wait(seconds)
     repeat until os.time() > start + seconds
 end
 
-
 -- TODO: it would be nice to use arguments to set a starting balance
 
 
 game = Game:new()
-game:initGame()
+game:InitGame()
 
