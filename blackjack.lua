@@ -385,11 +385,11 @@ function Game:PlayerHit()
     self.playerHand:AddCard(card)
 	
     playerHits = "Player hits for a " .. card:ToString() .. " and a score of " .. self.playerHand:Score() .. "."
-	
+
     print()
     print(playerHits)
 	
-    self:playerAction ()
+    self:PlayerAction ()
 		
 end
 
@@ -437,8 +437,8 @@ end
 
 function Game:DealerHit() 
 	
-    card = self.deck:dealCard()
-    self.dealerHand:addCard(card)
+    card = self.deck:DealCard()
+    self.dealerHand:AddCard(card)
 	
     dealerHits = "Dealer hits for a " .. card:ToString() .. " and a score of " .. self.dealerHand:Score() .. "."
 	
